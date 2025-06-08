@@ -21,12 +21,14 @@ namespace Inventory_Backend.Controllers
         {
             if (InventorydataDTO == null) return BadRequest();
 
-            if (string.IsNullOrWhiteSpace(InventorydataDTO.productname))
+            if (string.IsNullOrWhiteSpace(InventorydataDTO.productname) || InventorydataDTO.productname=="string")
                 return BadRequest("Product name is required.");
 
             if (InventorydataDTO.AvailableQuantity < 0 || InventorydataDTO.ReOrderAmount < 0)
                 return BadRequest("Quantities must be non-negative.");
-
+            if (InventorydataDTO.productid <= 0){
+                return BadRequest("No Product Id for 0 or Negative Values");
+            }
 
             var product = new Inventorydata
             {
@@ -39,18 +41,18 @@ namespace Inventory_Backend.Controllers
             _context.Inventory.Add(product);
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Product created", productId = product.productid });
+            return Ok(new { message = "Product created", productId = product.productid ,Success = true });
         }
 
         [HttpGet("getallinventorydata")]
         public async Task<ActionResult<IEnumerable<InventoryRequestData>>> GetAll()
         {
-            var products = await _context.Inventory.ToListAsync();
+            var products = await _context.Inventory.OrderByDescending(x=>x.Id).ToListAsync();
             if(products is null)
             {
                 return BadRequest();
             }
-            return Ok(products);
+            return Ok(new {Data = products , Success = true});
         }
 
         [HttpGet("getinventorydata/{id}")]
