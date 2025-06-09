@@ -65,7 +65,7 @@ namespace Inventory_Backend.Controllers
             if (product == null)
                 return NotFound($"Product with ID {id} not found.");
 
-            return Ok(product);
+            return Ok(new { Data = product, Success = true });
         }
 
         [HttpPut("inventorydataupdate/{id}")]
@@ -77,7 +77,7 @@ namespace Inventory_Backend.Controllers
             if (inventoryRequestData == null)
                 return BadRequest("Product data is required.");
 
-            if (string.IsNullOrWhiteSpace(inventoryRequestData.productname))
+            if (string.IsNullOrWhiteSpace(inventoryRequestData.productname) || inventoryRequestData.productname == "string")
                 return BadRequest("Product name is required.");
 
             var product = await _context.Inventory.FirstOrDefaultAsync(x => x.productid == id);
@@ -92,7 +92,7 @@ namespace Inventory_Backend.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            return Ok(new { message = "Product updated successfully", product });
+            return Ok(new { message = "Product updated successfully",data=product,success=true });
         }
 
         [HttpDelete("deleteinventorydata/{id}")]
@@ -108,7 +108,7 @@ namespace Inventory_Backend.Controllers
             _context.Inventory.Remove(product);
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Product deleted successfully" });
+            return Ok(new { message = "Product deleted successfully",success=true });
         }
     }
 }
